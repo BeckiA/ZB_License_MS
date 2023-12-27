@@ -47,7 +47,7 @@ a.custom-menu-list span.icon{
 </nav>
 <div class="containe-fluid">
 	<?php include('db_connect.php') ;
-	$files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
+	// $files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
 
 	?>
 	<div class="row">
@@ -65,7 +65,7 @@ a.custom-menu-list span.icon{
 					<h4><b>Files</b></h4>
 					<hr>
 					<span class="card-icon"><i class="fa fa-file"></i></span>
-					<h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM files')->num_rows ?></b></h3>
+					<!-- <h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM files')->num_rows ?></b></h3> -->
 				</div>
 			</div>
 		</div>
