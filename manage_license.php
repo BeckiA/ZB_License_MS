@@ -1,7 +1,7 @@
 <?php 
 include('db_connect.php');
-if(isset($_GET['id'])){
-$license = $conn->query("SELECT * FROM license where id =".$_GET['id']);
+if(isset($_GET['license_key'])){
+$license = $conn->query("SELECT * FROM license where license_key =".$_GET['license_key']);
 foreach($license->fetch_array() as $k =>$v){
 	$meta[$k] = $v;
 }
@@ -33,11 +33,11 @@ foreach($license->fetch_array() as $k =>$v){
 		</div>
 		<div class="form-group">
 			<label for="contact_phone">Contact Phone</label>
-			<input type="number" name="contact_phone" id="contact_phone" class="form-control" value="<?php echo isset($meta['contact_phone']) ? $meta['contact_person']: '' ?>" required>
+			<input type="tel" name="contact_phone" id="contact_phone" class="form-control" value="<?php echo isset($meta['contact_phone']) ? $meta['contact_phone']: '' ?>" required>
 		</div>
 		<div class="form-group">
 			<label for="contact_email">Contact Email</label>
-			<input type="text" name="contact_email" id="contact_email" class="form-control" value="<?php echo isset($meta['contact_email']) ? $meta['contact_email']: '' ?>" required>
+			<input type="email" name="contact_email" id="contact_email" class="form-control" value="<?php echo isset($meta['contact_email']) ? $meta['contact_email']: '' ?>" required>
 		</div>
 	</form>
 </div>

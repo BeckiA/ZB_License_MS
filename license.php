@@ -1,12 +1,13 @@
 <?php 
 include 'db_connect.php';
-// include '';
+
 $folder_parent =  0;
-// $folders = $conn->query("SELECT * FROM folders where parent_id = $folder_parent and user_id = '".$_SESSION['login_id']."'  order by name asc");
-
-
-// $files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and user_id = '".$_SESSION['login_id']."'  order by name asc");
-
+if(isset($_GET['license_key'])){
+	$license = $conn->query("SELECT * FROM license where license_key =".$_GET['license_key']);
+	foreach($license->fetch_array() as $k =>$v){
+		$meta[$k] = $v;
+	}
+	}
 ?>
 <style>
 	.folder-item{
@@ -52,19 +53,7 @@ a.custom-menu-list span.icon{
 <nav aria-label="breadcrumb ">
   <ol class="breadcrumb">
   
-<?php 
-	$id=$folder_parent;
-	while($id > 0)
-	{ 
-
-	$path = $conn->query("SELECT * FROM folders where id = $id  order by name asc")->fetch_array(); 
-?>
-	<li class="breadcrumb-item text-primary"><?php echo $path['name']; ?></li>
-<?php
-	$id = $path['parent_id'];	
-	} 
-?> 
-	<li class="breadcrumb-item"><a class="text-primary" href="index.php?page=files">Licenses</a></li>
+	<li class="breadcrumb-item"><a class="text-primary" href="index.php?page=licenses">Licenses</a></li>
   </ol>
 </nav>
 <div class="container-fluid">
@@ -95,11 +84,54 @@ a.custom-menu-list span.icon{
 				<div class="card-body">
 					<table width="100%">
 						<tr>
-							<th width="40%" class="">Filename</th>
-							<th width="20%" class="">Date</th>
-							<th width="40%" class="">Description</th>
+							<th width = '5%'>#</th>
+							<th width = '15%'>License Type</th>
+							<th width="20%" class="">License Name</th>
+							<th width="15%" class="">Vendor</th>
+							<th width="30%" class="">Purchased Date</th>
+							<th width="15%" class="">Actions</th>
 						</tr>
-						
+						<tbody>
+						<?php
+ 					include 'db_connect.php';
+ 					$licenses = $conn->query("SELECT * FROM license order by purchased_date asc");
+ 					$i = 1;
+ 					while($row= $licenses->fetch_assoc()):
+				 ?>
+				 <tr>
+				 	<td>
+				 		<?php echo $i++ ?>
+				 	</td>
+				 	<td>
+				 		<?php echo $row['license_type'] ?>
+				 	</td>
+				 	<td>
+				 		<?php echo $row['license_info'] ?>
+				 	</td>
+				 	<td>
+				 		<?php echo $row['client_info'] ?>
+				 	</td>
+				 	<td>
+				 		<?php echo $row['purchased_date'] ?>
+				 	</td>
+				 	<td>
+				 		<center>
+								<div class="btn-group">
+								  <button type="button" class="btn btn-primary">Action</button>
+								  <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								    <span class="sr-only">Toggle Dropdown</span>
+								  </button>
+								  <div class="dropdown-menu">
+								    <a class="dropdown-item edit_license" href="javascript:void(0)" data-id = '<?php echo $row['license_key'] ?>'>Edit</a>
+								    <div class="dropdown-divider"></div>
+								    <a class="dropdown-item delete_license" href="javascript:void(0)" data-id = '<?php echo $row['license_key'] ?>'>Delete</a>
+								  </div>
+								</div>
+								</center>
+				 	</td>
+				 </tr>
+				<?php endwhile; ?>
+			</tbody>
 					</table>
 					
 				</div>
@@ -114,4 +146,30 @@ a.custom-menu-list span.icon{
 	$('#new_license').click(function(){
 		uni_modal('New License','manage_license.php')
 	})
+	$('.edit_license').click(function(){
+	uni_modal('Edit License','manage_license.php?license_key='+$(this).attr('data-id'))
+	})
+
+
+	$('.delete_license').click(function(){
+		
+		$li_key=$(this).attr('data-id');
+     start_load()
+
+$.ajax({
+	url:'ajax.php?action=delete_license1&license_key12='+$(this).attr('data-id'),
+	method:'POST',
+	data:$(this).serialize(),
+	success:function(resp){
+		if(resp ==1){
+			alert_toast("Data successfully Deleted",'success')
+			setTimeout(function(){
+				location.reload()
+			},1500)
+		}
+	}
+})
+	})
+
+
 </script>

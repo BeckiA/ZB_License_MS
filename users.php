@@ -74,4 +74,22 @@ $('.edit_user').click(function(){
 	uni_modal('Edit User','manage_user.php?id='+$(this).attr('data-id'))
 })
 
+$('.delete_user').click(function(e){
+	e.priventDefault();
+	// var confirmDelete = confirm('Are you sure you want to delete this record?');
+ $.ajax({
+            url: 'ajax.php?id='+$(this).attr('data-id')
+            method: 'POST'
+            data: { id: $(this).data('id') },
+            success: function(response) {
+                if(resp ==1){
+					alert_toast("Data successfully saved",'success')
+					setTimeout(function(){
+						location.reload()
+					},1500)
+				}
+            },
+            
+        })
+})
 </script>

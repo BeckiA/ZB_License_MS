@@ -51,7 +51,23 @@ Class Action {
 			return 1;
 		}
 	}
-
+	// function delete_user(){
+	// 	extract($_POST);
+	// 	$delete = $this-> db -> query("DELETE FROM users WHERE id = ".$id);
+	// 	if ($delete) {
+	// 		return 1;
+	// 	}
+	// }
+	function delete_license($license_key1){
+		extract($_POST);
+		include 'db_connect.php';
+		$delete = $conn->query("DELETE FROM license WHERE license_key =$license_key1");
+			
+        
+        if ($delete) {
+            return 1;
+        }
+	}
 	function save_license(){
 		extract($_POST);
 		$data = " license_type = '$license_type' ";
@@ -61,10 +77,10 @@ Class Action {
 		$data .= ", contact_person = '$contact_person' ";
 		$data .= ", contact_email = '$contact_email' ";
 		$data .= ", contact_phone = '$contact_phone' ";
-		if(empty($id)){
+		if(empty($license_key)){
 			$save = $this->db->query("INSERT INTO license set ".$data);
 		}else{
-			$save = $this->db->query("UPDATE license set ".$data." where id = ".$id);
+			$save = $this->db->query("UPDATE license set ".$data." where license_key = ".$license_key);
 		}
 		if($save){
 			return 1;
