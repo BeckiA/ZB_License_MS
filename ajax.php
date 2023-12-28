@@ -21,26 +21,22 @@ if($action == 'save_user'){
 	if($save)
 		echo $save;
 }
-// if($action == 'save_user'){
-// 	$save = $crud->save_user();
-// 	if($save)
-// 		echo $save;
-// }
+if($action == 'delete_user'){
+	$user_id = $_GET['user_id'];
+	$delete = $crud->delete_user($user_id);
+	if($delete)
+		echo $delete;
+}
 if($action == 'save_license'){
 	$save = $crud->save_license();
 	if($save)
 		echo $save;
 }
-if($action == 'delete_license1'){
-    $license_key = $_GET['license_key12'];
-    // Use prepared statements to prevent SQL injection
-    $delete = $crud->delete_license	($license_key);
-    // $stmt->bind_param("s", $license_key);
-    // if ($stmt->execute()) {
-    //     echo 1;
-    // } else {
-    //     echo 0;
-    // }
+if($action == 'delete_license'){
+
+    $license_key = $_GET['license_key'];
+    $delete = $crud->delete_license($license_key);
+    
 	if ($delete) {
 		echo $delete;
 	}

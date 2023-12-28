@@ -157,7 +157,7 @@ a.custom-menu-list span.icon{
      start_load()
 
 $.ajax({
-	url:'ajax.php?action=delete_license1&license_key12='+$(this).attr('data-id'),
+	url:'ajax.php?action=delete_license&license_key='+$(this).attr('data-id'),
 	method:'POST',
 	data:$(this).serialize(),
 	success:function(resp){
@@ -165,7 +165,7 @@ $.ajax({
 			alert_toast("Data successfully Deleted",'success')
 			setTimeout(function(){
 				location.reload()
-			},1500)
+			},500)
 		}
 	}
 })

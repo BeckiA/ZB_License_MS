@@ -51,17 +51,18 @@ Class Action {
 			return 1;
 		}
 	}
-	// function delete_user(){
-	// 	extract($_POST);
-	// 	$delete = $this-> db -> query("DELETE FROM users WHERE id = ".$id);
-	// 	if ($delete) {
-	// 		return 1;
-	// 	}
-	// }
-	function delete_license($license_key1){
+	function delete_user($id){
 		extract($_POST);
 		include 'db_connect.php';
-		$delete = $conn->query("DELETE FROM license WHERE license_key =$license_key1");
+		$delete = $conn->query("DELETE FROM users WHERE id = $id ");
+		if ($delete) {
+			return 1;
+		}
+	}
+	function delete_license($li_key){
+		extract($_POST);
+		include 'db_connect.php';
+		$delete = $conn->query("DELETE FROM license WHERE license_key =$li_key");
 			
         
         if ($delete) {

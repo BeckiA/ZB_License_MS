@@ -74,22 +74,23 @@ $('.edit_user').click(function(){
 	uni_modal('Edit User','manage_user.php?id='+$(this).attr('data-id'))
 })
 
-$('.delete_user').click(function(e){
-	e.priventDefault();
-	// var confirmDelete = confirm('Are you sure you want to delete this record?');
- $.ajax({
-            url: 'ajax.php?id='+$(this).attr('data-id')
-            method: 'POST'
-            data: { id: $(this).data('id') },
-            success: function(response) {
-                if(resp ==1){
-					alert_toast("Data successfully saved",'success')
-					setTimeout(function(){
-						location.reload()
-					},1500)
-				}
-            },
-            
-        })
+$('.delete_user').click(function(){
+		
+		
+     start_load()
+
+$.ajax({
+	url:'ajax.php?action=delete_user&user_id='+$(this).attr('data-id'),
+	method:'POST',
+	data:$(this).serialize(),
+	success:function(resp){
+		if(resp ==1){
+			alert_toast("User successfully Deleted",'success')
+			setTimeout(function(){
+				location.reload()
+			},500)
+		}
+	}
 })
+	})
 </script>
