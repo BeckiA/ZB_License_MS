@@ -34,6 +34,8 @@ if ($result->num_rows > 0) {
         // Send email if 10 days are left
         if ($daysLeft = 11) {
 
+
+			
 			
 		$name = "Zemen Bank";
 		$mail = new PHPMailer;
