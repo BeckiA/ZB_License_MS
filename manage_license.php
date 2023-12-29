@@ -28,6 +28,10 @@ foreach($license->fetch_array() as $k =>$v){
 			<input type="date" name="purchased_date" id="purchased_date" class="form-control" value="<?php echo isset($meta['purchased_date']) ? $meta['purchased_date']: '' ?>" required>
 		</div>
 		<div class="form-group">
+			<label for="expiration_date">Expiration Date</label>
+			<input type="date" name="expiration_date" id="expiration_date" class="form-control" value="<?php echo isset($meta['expiration_date']) ? $meta['expiration_date']: '' ?>" required>
+		</div>
+		<div class="form-group">
 			<label for="contact_person">Contact Person</label>
 			<input type="text" name="contact_person" id="contact_person" class="form-control" value="<?php echo isset($meta['contact_person']) ? $meta['contact_person']: '' ?>" required>
 		</div>

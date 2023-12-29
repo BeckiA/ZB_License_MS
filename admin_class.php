@@ -75,6 +75,7 @@ Class Action {
 		$data .= ", license_info = '$license_info' ";
 		$data .= ", client_info = '$client_info' ";
 		$data .= ", purchased_date = '$purchased_date' ";
+		$data .= ", expiration_date = '$expiration_date' ";
 		$data .= ", contact_person = '$contact_person' ";
 		$data .= ", contact_email = '$contact_email' ";
 		$data .= ", contact_phone = '$contact_phone' ";

@@ -88,13 +88,13 @@ a.custom-menu-list span.icon{
 							<th width = '15%'>License Type</th>
 							<th width="20%" class="">License Name</th>
 							<th width="15%" class="">Vendor</th>
-							<th width="30%" class="">Purchased Date</th>
+							<th width="30%" class="">Expiration Date</th>
 							<th width="15%" class="">Actions</th>
 						</tr>
 						<tbody>
 						<?php
  					include 'db_connect.php';
- 					$licenses = $conn->query("SELECT * FROM license order by purchased_date asc");
+ 					$licenses = $conn->query("SELECT * FROM license order by expiration_date asc");
  					$i = 1;
  					while($row= $licenses->fetch_assoc()):
 				 ?>
@@ -112,7 +112,7 @@ a.custom-menu-list span.icon{
 				 		<?php echo $row['client_info'] ?>
 				 	</td>
 				 	<td>
-				 		<?php echo $row['purchased_date'] ?>
+				 		<?php echo $row['expiration_date'] ?>
 				 	</td>
 				 	<td>
 				 		<center>
