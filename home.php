@@ -76,23 +76,46 @@ a.custom-menu-list span.icon{
 				<div class="card-body">
 					<table width="100%">
 						<tr>
-							<th width="20%" class="">Uploader</th>
-							<th width="30%" class="">Filename</th>
-							<th width="20%" class="">Date</th>
-							<th width="30%" class="">Description</th>
+							<th width="30%" class="">License Name</th>
+							<th width="30%" class="">Vendor</th>
+							<th width="20%" class="">Expiration Date Left</th>
+							<th width="20%" class="">Contact Person</th>
 						</tr>
-					
-						<!-- <tr class='file-item' data-id="<?php echo $row['id'] ?>" data-name="<?php echo $name ?>">
-							<td><i><?php echo ucwords($row['uname']) ?></i></td>
-							<td><large><span><i class="fa <?php echo $icon ?>"></i></span><b> <?php echo $name ?></b></large>
-							<input type="text" class="rename_file" value="<?php echo $row['name'] ?>" data-id="<?php echo $row['id'] ?>" data-type="<?php echo $row['file_type'] ?>" style="display: none">
-
-							</td>
-							<td><i><?php echo date('Y/m/d h:i A',strtotime($row['date_updated'])) ?></i></td>
-							<td><i><?php echo $row['description'] ?></i></td> -->
-						</tr>
+							<tbody>
 							
-				
+     
+	
+							
+						
+						</tbody>	 
+						<?php
+        include 'db_connect.php';
+        $licenses = $conn->query("SELECT * FROM license ORDER BY expiration_date ASC");
+        $i = 1;
+        while ($row = $licenses->fetch_assoc()) :
+            // Calculate days left
+            $currentDate = date("Y-m-d");
+            $expirationDate = $row['expiration_date'];
+            $daysLeft = strtotime($expirationDate) - strtotime($currentDate);
+            $daysLeft = floor($daysLeft / (60 * 60 * 24));
+
+            // Determine background color based on days left
+            $bgColor = '';
+            if ($daysLeft <= 7) {
+                $bgColor = '#ff758f'; // Expired
+            } elseif ($daysLeft <= 30) {
+                $bgColor = '#ffe97f'; // Within a month
+            } else {
+                $bgColor = '#80ed99'; // More than a month left
+            }
+            ?>
+            <tr style="background-color: <?php echo $bgColor; ?>; padding: 15">
+                <td><?php echo $row['license_info'] ?></td>
+                <td><?php echo $row['client_info'] ?></td>
+                <td><?php echo $daysLeft ?></td>
+                <td><?php echo $row['contact_person'] ?></td>
+            </tr>
+        <?php endwhile; ?>
 					</table>
 					
 				</div>
@@ -102,43 +125,3 @@ a.custom-menu-list span.icon{
 	</div>
 
 </div>
-<div id="menu-file-clone" style="display: none;">
-	<a href="javascript:void(0)" class="custom-menu-list file-option download"><span><i class="fa fa-download"></i> </span>Download</a>
-</div>
-<script>
-	//FILE
-	$('.file-item').bind("contextmenu", function(event) { 
-    event.preventDefault();
-
-    $('.file-item').removeClass('active')
-    $(this).addClass('active')
-    $("div.custom-menu").hide();
-    var custom =$("<div class='custom-menu file'></div>")
-        custom.append($('#menu-file-clone').html())
-        custom.find('.download').attr('data-id',$(this).attr('data-id'))
-    custom.appendTo("body")
-	custom.css({top: event.pageY + "px", left: event.pageX + "px"});
-
-	
-	$("div.file.custom-menu .download").click(function(e){
-		e.preventDefault()
-		window.open('download.php?id='+$(this).attr('data-id'))
-	})
-
-	
-
-})
-	$(document).bind("click", function(event) {
-    $("div.custom-menu").hide();
-    $('#file-item').removeClass('active')
-
-});
-	$(document).keyup(function(e){
-
-    if(e.keyCode === 27){
-        $("div.custom-menu").hide();
-    $('#file-item').removeClass('active')
-
-    }
-})
-</script>
