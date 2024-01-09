@@ -28,8 +28,18 @@ foreach($license->fetch_array() as $k =>$v){
 			<input type="date" name="purchased_date" id="purchased_date" class="form-control" value="<?php echo isset($meta['purchased_date']) ? $meta['purchased_date']: '' ?>" required>
 		</div>
 		<div class="form-group">
-			<label for="expiration_date">Expiration Date</label>
-			<input type="date" name="expiration_date" id="expiration_date" class="form-control" value="<?php echo isset($meta['expiration_date']) ? $meta['expiration_date']: '' ?>" required>
+		<label for="license_lifetime">License Lifetime</label>
+		<select id="licenseType" class="form-control">
+        <option value="">Choose Lifetime</option>
+        <option value="annual" >Annual</option>
+        <option value="lifetime">Lifetime</option>
+    </select>
+		</div>
+		<div class="form-group">
+		<div id="expirationField" style="display: none;">
+        <label for="expirationDate">License Expiration Date</label>
+        <input type="date" id="expirationDate" name="expiration_date" class="form-control" value="<?php echo isset($meta['expiration_date']) ? $meta['expiration_date']: '' ?>" required>
+    </div>
 		</div>
 		<div class="form-group">
 			<label for="contact_person">Contact Person</label>
@@ -46,6 +56,18 @@ foreach($license->fetch_array() as $k =>$v){
 	</form>
 </div>
 <script>
+	 $(document).ready(function() {
+        $('#licenseType').change(function() {
+            var selectedType = $(this).val();
+            var expirationField = $('#expirationField');
+
+            if (selectedType === 'lifetime') {
+                expirationField.hide();
+            } else {
+                expirationField.show();
+            }
+        });
+    });
 	$('#manage-license').submit(function(e){
 		e.preventDefault();
 		start_load()

@@ -82,7 +82,8 @@ a.custom-menu-list span.icon{
 		<div class="row">
 			<div class="card col-md-12">
 				<div class="card-body">
-					<table width="100%">
+				<ul class="pagination" id="pagination"></ul>
+					<table width="100%" class="table">
 						<tr>
 							<th width = '5%'>#</th>
 							<th width = '15%'>License Type</th>
@@ -91,7 +92,7 @@ a.custom-menu-list span.icon{
 							<th width="30%" class="">Expiration Date</th>
 							<th width="15%" class="">Actions</th>
 						</tr>
-						<tbody>
+						<tbody id="tableBody">
 						<?php
  					include 'db_connect.php';
  					$licenses = $conn->query("SELECT * FROM license order by expiration_date asc");
@@ -142,7 +143,41 @@ a.custom-menu-list span.icon{
 </div>
 
 <script>
-	
+	$(document).ready(function() {
+    var tableRows = $('#tableBody tr'); // Select all table rows
+    var rowsPerPage = 5; // Number of rows per page
+    var totalRows = tableRows.length; // Total number of rows
+    var totalPages = Math.ceil(totalRows / rowsPerPage); // Calculate total pages
+
+    // Initialize pagination links
+    var pagination = $('#pagination');
+    for (var i = 1; i <= totalPages; i++) {
+        pagination.append('<li class="page-item"><a class="page-link" href="#">' + i + '</a></li>');
+    }
+
+    // Show first page initially
+    showPage(1);
+
+    // Pagination click event
+    pagination.on('click', 'a.page-link', function(e) {
+        e.preventDefault();
+        var pageNum = parseInt($(this).text());
+        showPage(pageNum);
+    });
+
+    // Function to show specific page
+    function showPage(pageNum) {
+        var start = (pageNum - 1) * rowsPerPage;
+        var end = start + rowsPerPage;
+
+        // Hide all rows
+        tableRows.hide();
+
+        // Show rows for the selected page
+        tableRows.slice(start, end).show();
+    }
+});
+
 	$('#new_license').click(function(){
 		uni_modal('New License','manage_license.php')
 	})

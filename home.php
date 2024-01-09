@@ -50,9 +50,10 @@ a.custom-menu-list span.icon{
 	// $files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
 
 	?>
+	<div class="py-5">
 	<div class="row">
 		<div class="col-lg-12">
-			<div class="card col-md-4 offset-2 bg-custom float-left">
+			<div class="card col-md-4 offset-2 bg-custom float-left p-2">
 				<div class="card-body text-white">
 					<h4><b>Users</b></h4>
 					<hr>
@@ -60,7 +61,7 @@ a.custom-menu-list span.icon{
 					<h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM users')->num_rows ?></b></h3>
 				</div>
 			</div>
-			<div class="card col-md-4 offset-2 bg-custom ml-4 float-left">
+			<div class="card col-md-4 offset-2 bg-custom ml-4 float-left p-2">
 				<div class="card-body text-white">
 					<h4><b>Saved Licenses</b></h4>
 					<hr>
@@ -70,25 +71,41 @@ a.custom-menu-list span.icon{
 			</div>
 		</div>
 	</div>
-
+	</div>
 	<div class="row mt-3 ml-3 mr-3">
 			<div class="card col-md-12">
-				<div class="card-body">
-					<table width="100%">
+				<div class="p-2">
+				<div class="container">
+    <div class="row">
+        <div class="d-flex justify-content-end">
+            <!-- Filtering by year -->
+			<div class="col-sm-1">
+            	<form id="filterForm"  class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control mr-2" id="expirationYear" placeholder="Enter year">
+					<button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+               
+           	 </form>
+			</div>
+		</div>	
+    </div>
+</div>
+
+					<ul class="pagination" id="pagination"></ul>
+					<table width="100%" class="table">
 						<tr>
 							<th width="30%" class="">License Name</th>
 							<th width="30%" class="">Vendor</th>
 							<th width="20%" class="">Expiration Date Left</th>
 							<th width="20%" class="">Contact Person</th>
 						</tr>
-							<tbody>
 							
-     
-	
 							
 						
-						</tbody>	 
+						<tbody id="tableBody">	 
 						<?php
+						
         include 'db_connect.php';
         $licenses = $conn->query("SELECT * FROM license ORDER BY expiration_date ASC");
         $i = 1;
@@ -109,19 +126,76 @@ a.custom-menu-list span.icon{
                 $bgColor = '#80ed99'; // More than a month left
             }
             ?>
-            <tr style="background-color: <?php echo $bgColor; ?>; padding: 15">
+            <tr style="background-color: <?php echo $bgColor; ?>; padding-left: 15;">
                 <td><?php echo $row['license_info'] ?></td>
                 <td><?php echo $row['client_info'] ?></td>
                 <td><?php echo $daysLeft ?></td>
                 <td><?php echo $row['contact_person'] ?></td>
             </tr>
         <?php endwhile; ?>
+		</tbody>
 					</table>
 					
-				</div>
+		</div>
 			</div>
 			
 		</div>
 	</div>
 
 </div>
+
+<script>
+	$(document).ready(function() {
+    var tableRows = $('#tableBody tr'); // Select all table rows
+    var rowsPerPage = 5; // Number of rows per page
+    var totalRows = tableRows.length; // Total number of rows
+    var totalPages = Math.ceil(totalRows / rowsPerPage); // Calculate total pages
+
+    // Initialize pagination links
+    var pagination = $('#pagination');
+    for (var i = 1; i <= totalPages; i++) {
+        pagination.append('<li class="page-item"><a class="page-link" href="#">' + i + '</a></li>');
+    }
+    showPage(1);
+
+    // Pagination click event
+    pagination.on('click', 'a.page-link', function(e) {
+        e.preventDefault();
+        var pageNum = parseInt($(this).text());
+        showPage(pageNum);
+    });
+
+    // Function to show specific page
+    function showPage(pageNum) {
+        var start = (pageNum - 1) * rowsPerPage;
+        var end = start + rowsPerPage;
+
+        // Hide all rows
+        tableRows.hide();
+
+        // Show rows for the selected page
+        tableRows.slice(start, end).show();
+    }
+});
+
+$(document).ready(function() {
+    $('#filterForm').submit(function(e) {
+        e.preventDefault();
+        var enteredYear = $('#expirationYear').val();
+
+        $.ajax({
+            url: 'filter_by_year.php',
+            method: 'POST',
+            data: { year: enteredYear},
+            success: function(response) {
+                $('#tableBody').empty(); // Clear existing table content
+                $('#tableBody').append(response); // Append filtered data to the table body// Display filtered data in 'filteredData' div
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+    });
+});
+
+</script>
