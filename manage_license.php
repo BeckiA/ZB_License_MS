@@ -21,8 +21,16 @@ foreach($license->fetch_array() as $k =>$v){
 		</div>
 		<div class="form-group">
 			<label for="client_info">Client Information</label>
-			<input type="text" name="client_info" id="client_info" class="form-control" value="<?php echo isset($meta['client_info']) ? $meta['client_info']: '' ?>" required>
+			<textarea name="client_info" class="form-control" id="client_info" cols="30" rows="5" value="<?php echo isset($meta['client_info']) ? $meta['client_info']: '' ?>" required><?php echo isset($meta['client_info']) ? $meta['client_info']: '' ?></textarea>
 		</div>
+		<div class="form-group">
+			<label for="license_description">License Description</label>
+			<textarea name="license_description" class="form-control" id="license_description" cols="30" rows="5" value="<?php echo isset($meta['license_description']) ? $meta['license_description']: '' ?>" required><?php echo isset($meta['client_info']) ? $meta['client_info']: '' ?></textarea>
+		</div>
+		<div class="form-group">
+			<label for="license_cost">License Cost</label>
+			<input type="number" name="license_cost" id="license_cost" class="form-control" value="<?php echo isset($meta['license_cost']) ? $meta['license_cost']: '' ?>" required>
+			</div>
 		<div class="form-group">
 			<label for="purchased_date">Purchased Date</label>
 			<input type="date" name="purchased_date" id="purchased_date" class="form-control" value="<?php echo isset($meta['purchased_date']) ? $meta['purchased_date']: '' ?>" required>
@@ -38,7 +46,7 @@ foreach($license->fetch_array() as $k =>$v){
 		<div class="form-group">
 		<div id="expirationField" style="display: none;">
         <label for="expirationDate">License Expiration Date</label>
-        <input type="date" id="expirationDate" name="expiration_date" class="form-control" value="<?php echo isset($meta['expiration_date']) ? $meta['expiration_date']: '' ?>" required>
+        <input type="date" id="expirationDate" name="expiration_date" class="form-control" value="<?php echo isset($meta['expiration_date']) ? $meta['expiration_date']: NULL ?>" required>
     </div>
 		</div>
 		<div class="form-group">
@@ -52,6 +60,18 @@ foreach($license->fetch_array() as $k =>$v){
 		<div class="form-group">
 			<label for="contact_email">Contact Email</label>
 			<input type="email" name="contact_email" id="contact_email" class="form-control" value="<?php echo isset($meta['contact_email']) ? $meta['contact_email']: '' ?>" required>
+		</div>
+		<div class="form-group">
+			<label for="contact_person2">Contact Person 2</label>
+			<input type="text" name="contact_person2" id="contact_person2" class="form-control" value="<?php echo isset($meta['contact_person2']) ? $meta['contact_person2']: '' ?>" required>
+		</div>
+		<div class="form-group">
+			<label for="contact_phone2">Contact Phone 2</label>
+			<input type="tel" name="contact_phone2" id="contact_phone2" class="form-control" value="<?php echo isset($meta['contact_phone2']) ? $meta['contact_phone2']: '' ?>" required>
+		</div>
+		<div class="form-group">
+			<label for="contact_email2">Contact Email 2</label>
+			<input type="email" name="contact_email2" id="contact_email2" class="form-control" value="<?php echo isset($meta['contact_email2']) ? $meta['contact_email2']: '' ?>" required>
 		</div>
 	</form>
 </div>
@@ -85,4 +105,24 @@ foreach($license->fetch_array() as $k =>$v){
 			}
 		})
 	})
+
+	$(document).ready(function() {
+    $('#filterForm').submit(function(e) {
+        e.preventDefault();
+        var enteredYear = $('#expirationYear').val();
+
+        $.ajax({
+            url: 'filter_by_year.php',
+            method: 'POST',
+            data: { year: enteredYear},
+            success: function(response) {
+                $('#tableBody').empty(); // Clear existing table content
+                $('#tableBody').append(response); // Append filtered data to the table body// Display filtered data in 'filteredData' div
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+    });
+});
 </script>

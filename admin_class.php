@@ -59,29 +59,67 @@ Class Action {
 			return 1;
 		}
 	}
-	function delete_license($li_key){
-		extract($_POST);
+	function delete_license($li_key) {
 		include 'db_connect.php';
-		$delete = $conn->query("DELETE FROM license WHERE license_key =$li_key");
-			
-        
-        if ($delete) {
-            return 1;
-        }
+	
+		// Fetch the license details before deletion
+		$selectQuery = "SELECT * FROM license WHERE license_key = $li_key";
+		$selectResult = $conn->query($selectQuery);
+	
+		if ($selectResult && $selectResult->num_rows > 0) {
+			$row = $selectResult->fetch_assoc();
+	
+			// Insert the license details into the license_history table
+			$insertQuery = "INSERT INTO `license_history` (`license_type`, `license_description`, 
+				`license_info`, `client_info`, `license_cost`, 
+				`purchased_date`, `expiration_date`, `contact_person`, 
+				`contact_person2`, `contact_phone`, `contact_phone2`, 
+				`contact_email`, `contact_email2`)
+				VALUES ('{$row['license_type']}', '{$row['license_description']}',
+				'{$row['license_info']}', '{$row['client_info']}', '{$row['license_cost']}',
+				'{$row['purchased_date']}', '{$row['expiration_date']}', '{$row['contact_person']}',
+				'{$row['contact_person2']}', '{$row['contact_phone']}', '{$row['contact_phone2']}',
+				'{$row['contact_email']}', '{$row['contact_email2']}')";
+	
+			$insertResult = $conn->query($insertQuery);
+	
+			if ($insertResult) {
+				// After inserting into history table, delete from the original table
+				$deleteQuery = "DELETE FROM license WHERE license_key = $li_key";
+				$deleteResult = $conn->query($deleteQuery);
+	
+				if ($deleteResult) {
+					return 1; // Success
+				} else {
+					return "Error deleting from license table: " . $conn->error;
+				}
+			} else {
+				return "Error inserting into license_history table: " . $conn->error;
+			}
+		} else {
+			return "License not found for key $li_key";
+		}
 	}
+	
 	function save_license(){
 		extract($_POST);
 		$data = " license_type = '$license_type' ";
 		$data .= ", license_info = '$license_info' ";
+		$data .= ", license_description = '$license_description' ";
 		$data .= ", client_info = '$client_info' ";
+		$data .= ", license_cost = '$license_cost' ";
 		$data .= ", purchased_date = '$purchased_date' ";
 		$data .= ", expiration_date = '$expiration_date' ";
 		$data .= ", contact_person = '$contact_person' ";
 		$data .= ", contact_email = '$contact_email' ";
 		$data .= ", contact_phone = '$contact_phone' ";
+		$data .= ", contact_person2 = '$contact_person' ";
+		$data .= ", contact_email2 = '$contact_email' ";
+		$data .= ", contact_phone2 = '$contact_phone' ";
 		if(empty($license_key)){
 			$save = $this->db->query("INSERT INTO license set ".$data);
 		}else{
+			$save = $this->db->query("INSERT INTO license_history set ".$data);
 			$save = $this->db->query("UPDATE license set ".$data." where license_key = ".$license_key);
 		}
 		if($save){

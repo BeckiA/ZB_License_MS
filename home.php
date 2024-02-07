@@ -106,32 +106,35 @@ a.custom-menu-list span.icon{
 						<tbody id="tableBody">	 
 						<?php
 						
-        include 'db_connect.php';
-        $licenses = $conn->query("SELECT * FROM license ORDER BY expiration_date ASC");
-        $i = 1;
-        while ($row = $licenses->fetch_assoc()) :
-            // Calculate days left
-            $currentDate = date("Y-m-d");
-            $expirationDate = $row['expiration_date'];
-            $daysLeft = strtotime($expirationDate) - strtotime($currentDate);
-            $daysLeft = floor($daysLeft / (60 * 60 * 24));
-
-            // Determine background color based on days left
-            $bgColor = '';
-            if ($daysLeft <= 7) {
-                $bgColor = '#ff758f'; // Expired
-            } elseif ($daysLeft <= 30) {
-                $bgColor = '#ffe97f'; // Within a month
-            } else {
-                $bgColor = '#80ed99'; // More than a month left
-            }
-            ?>
-            <tr style="background-color: <?php echo $bgColor; ?>; padding-left: 15;">
-                <td><?php echo $row['license_info'] ?></td>
-                <td><?php echo $row['client_info'] ?></td>
-                <td><?php echo $daysLeft ?></td>
-                <td><?php echo $row['contact_person'] ?></td>
-            </tr>
+                        include 'db_connect.php';
+                        $licenses = $conn->query("SELECT * FROM license WHERE (expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00') ORDER BY expiration_date ASC");
+                        $i = 1;
+                        while ($row = $licenses->fetch_assoc()) :
+                            // Calculate days left
+                            $currentDate = date("Y-m-d");
+                            $expirationDate = $row['expiration_date'];
+                            $daysLeft = strtotime($expirationDate) - strtotime($currentDate);
+                            $daysLeft = floor($daysLeft / (60 * 60 * 24));
+                        
+                            // Determine background color based on days left
+                            $bgColor = '';
+                            if ($daysLeft <= 7) {
+                                $bgColor = '#ff758f'; // Expired
+                            } elseif ($daysLeft <= 30) {
+                                $bgColor = '#ffe97f'; // Within a month
+                            } else {
+                                $bgColor = '#80ed99'; // More than a month left
+                            }
+                        
+                            // Handle the case where daysLeft is less than or equal to 0
+                            $daysLeftDisplay = ($daysLeft <= 0) ? 'Life Time License' : $daysLeft;
+                            ?>
+                            <tr style="background-color: <?php echo $bgColor; ?>; padding-left: 15;">
+                                <td><?php echo $row['license_info'] ?></td>
+                                <td><?php echo $row['client_info'] ?></td>
+                                <td><?php echo $daysLeftDisplay ?></td>
+                                <td><?php echo $row['contact_person'] ?></td>
+                            </tr>
         <?php endwhile; ?>
 		</tbody>
 					</table>

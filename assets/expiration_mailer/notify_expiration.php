@@ -11,7 +11,7 @@ $currentDate = date("Y-m-d");
 include '../../db_connect.php';
 
 // Query to fetch necessary data for upcoming expirations at specific intervals
-$sql = "SELECT contact_email, contact_person, license_info, expiration_date, purchased_date 
+$sql = "SELECT * 
         FROM license 
         WHERE expiration_date >= ? 
         AND expiration_date BETWEEN ? AND DATE_ADD(?, INTERVAL 6 MONTH)
@@ -27,11 +27,15 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
+
+	$expirationDates = array();
     // Loop through the results
     while($row = $result->fetch_assoc()) {
         // Extract data from the row
         $contactEmail = $row['contact_email'];
+        $contactEmail2 = $row['contact_email2'];
         $contactPerson = $row['contact_person'];
+        $contactPerson2 = $row['contact_person2'];
         $licenseInfo = $row['license_info'];
         $expirationDateFromDB = $row['expiration_date'];
         $purchasedDate = $row['purchased_date'];
@@ -53,83 +57,72 @@ if ($result->num_rows > 0) {
 		];
 
 
-		echo($daysLeft);
+		echo($daysLeft);	
 			
-			
-			
-		// Send notifications at each interval
+		// Check for duplicate expiration dates
+        if (in_array($expirationDate, $expirationDates)) {
+            // Duplicate found, send email to both persons
 
-		if (in_array($daysLeft, $intervals)) {
-            
-			$name = "Zemen Bank";
-			$mail = new PHPMailer;
-			$mail->isSMTP();
-			//$mail->SMTPDebug = 2;
-			$mail->Host = 'smtp.gmail.com';
-			$mail->Port = 587;
-			$mail->SMTPAuth = true;
-			$mail->Username = 'zemenbanklicencems@gmail.com'; /* This is the sender of the bookings. */
-			$mail->Password = 'mqjr ijxe jgiv tzqw';
-		
-		
-			$mail->setFrom('bekanimabera@gmail.com');
-			$mail->addAddress($contactEmail, $contactPerson);
-			// $mail->addReplyTo('zemenbanklicencems@gmail.com', $name); /* Reply to the user who submitted the form from the bookings email. */
-		
-				$mail->Subject = "License Expiration Reminder";
-				$mail->isHTML(true);
-				$mail->Body = "
-				Hi  $contactPerson,<br><br>
-				The license for $licenseInfo will expire in $daysLeft days (on $expirationDate). Please consider extending it.
-				Purchased Date: $purchasedDate<br><br>
-				Best regards,<br>
-				Zemen Bank License Management System";
+            // Send email to the first person
+            sendExpirationEmail($contactEmail, $contactPerson, $licenseInfo, $expirationDate, $purchasedDate);
+
+             
+			// Send email to the second person
+        	sendExpirationEmail($contactEmail2, $contactPerson2, $licenseInfo, $expirationDate, $purchasedDate);
+			} else {
+			// No duplicate, add the expiration date to the array
+				$expirationDates[] = $expirationDate;
+            // Send notifications at each interval
+            if (in_array($daysLeft, $intervals)) {
+            // Send email to the first person
+        	 sendExpirationEmail($contactEmail, $contactPerson, $licenseInfo, $expirationDate, $purchasedDate);
+
+			// Send email to the second person
+        	sendExpirationEmail($contactEmail2, $contactPerson2, $licenseInfo, $expirationDate, $purchasedDate);
 				
-				if ($mail->send()){
-					echo($daysLeft);
-					echo('Please Check Your Email Inbox!');
-				}
-        } elseif ($daysLeft < 7 && $daysLeft > 0) {
-            // Send daily notifications within the last week before expiration
-            for ($i = $daysLeft; $i > 0; $i--) {
-                
-				$name = "Zemen Bank";
-			$mail = new PHPMailer;
-			$mail->isSMTP();
-			//$mail->SMTPDebug = 2;
-			$mail->Host = 'smtp.gmail.com';
-			$mail->Port = 587;
-			$mail->SMTPAuth = true;
-			$mail->Username = 'zemenbanklicencems@gmail.com'; /* This is the sender of the bookings. */
-			$mail->Password = 'mqjr ijxe jgiv tzqw';
-		
-		
-			$mail->setFrom('bekanimabera@gmail.com');
-			$mail->addAddress($contactEmail, $contactPerson);
-			// $mail->addReplyTo('zemenbanklicencems@gmail.com', $name); /* Reply to the user who submitted the form from the bookings email. */
-		
-				$mail->Subject = "License Expiration Reminder";
-				$mail->isHTML(true);
-				$mail->Body = "
-				Hi  $contactPerson,<br><br>
-				The license for $licenseInfo will expire in $daysLeft days (on $expirationDate). Please consider extending it.
-				Purchased Date: $purchasedDate<br><br>
-				Best regards,<br>
-				Zemen Bank License Management System";
-				
-				if ($mail->send()){
-					echo($daysLeft);
-					echo('Please Check Your Email Inbox!');
-				}
-            // Exit loop for intervals before 1 week
-				break;  
+        
+            } elseif ($daysLeft < 7 && $daysLeft > 0) {
+                // Send daily notifications within the last week before expiration
+                for ($i = $daysLeft; $i > 0; $i--) {
+                    sendExpirationEmail($contactEmail, $contactPerson, $licenseInfo, $expirationDate, $purchasedDate);
+					sendExpirationEmail($contactEmail2, $contactPerson2, $licenseInfo, $expirationDate, $purchasedDate);
+                    $expirationDates[] = $expirationDate; // Add the date to the array for subsequent emails
+                }
             }
-        } else {
-            echo "The Date doesn't fall in a range";
         }
     }
 } else {
     echo "No upcoming expirations.";
 }
-  
+
+function sendExpirationEmail($to, $person, $info, $expDate, $purchaseDate) {
+    $name = "Zemen Bank";
+	$mail = new PHPMailer;
+	$mail->isSMTP();
+	//$mail->SMTPDebug = 2;
+	$mail->Host = 'smtp.gmail.com';
+	$mail->Port = 587;
+	$mail->SMTPAuth = true;
+	$mail->Username = 'zemenbanklicencems@gmail.com'; /* This is the sender of the bookings. */
+	$mail->Password = 'mqjr ijxe jgiv tzqw';
+
+    // $mail->setFrom('bekanimabera@gmail.com');
+    $mail->addAddress($to, $person);
+    // ... (existing code for setting up email)
+
+    $mail->Subject = "License Expiration Reminder";
+    $mail->isHTML(true);
+    $mail->Body = "
+        Hi  $person,<br><br>
+        The license for $info will expire on $expDate. Please consider extending it.
+        Purchased Date: $purchaseDate<br><br>
+        Best regards,<br>
+        Zemen Bank License Management System";
+    
+    if ($mail->send()) {
+        echo "Email sent successfully to $to";
+    } else {
+        echo "Error sending email to $to: " . $mail->ErrorInfo;
+    }
+}
 ?>
