@@ -74,12 +74,12 @@ Class Action {
 				`license_info`, `client_info`, `license_cost`, 
 				`purchased_date`, `expiration_date`, `contact_person`, 
 				`contact_person2`, `contact_phone`, `contact_phone2`, 
-				`contact_email`, `contact_email2`)
+				`contact_email`, `contact_email2`, `user_id`)
 				VALUES ('{$row['license_type']}', '{$row['license_description']}',
 				'{$row['license_info']}', '{$row['client_info']}', '{$row['license_cost']}',
 				'{$row['purchased_date']}', '{$row['expiration_date']}', '{$row['contact_person']}',
 				'{$row['contact_person2']}', '{$row['contact_phone']}', '{$row['contact_phone2']}',
-				'{$row['contact_email']}', '{$row['contact_email2']}')";
+				'{$row['contact_email']}', '{$row['contact_email2']}', '{$row['user_id']}')";
 	
 			$insertResult = $conn->query($insertQuery);
 	
@@ -105,6 +105,7 @@ Class Action {
 		extract($_POST);
 		$data = " license_type = '$license_type' ";
 		$data .= ", license_info = '$license_info' ";
+		$data .= ", user_id = '$user_id'";
 		$data .= ", license_description = '$license_description' ";
 		$data .= ", client_info = '$client_info' ";
 		$data .= ", license_cost = '$license_cost' ";
@@ -113,14 +114,14 @@ Class Action {
 		$data .= ", contact_person = '$contact_person' ";
 		$data .= ", contact_email = '$contact_email' ";
 		$data .= ", contact_phone = '$contact_phone' ";
-		$data .= ", contact_person2 = '$contact_person' ";
-		$data .= ", contact_email2 = '$contact_email' ";
-		$data .= ", contact_phone2 = '$contact_phone' ";
+		$data .= ", contact_person2 = '$contact_person2' ";
+		$data .= ", contact_email2 = '$contact_email2' ";
+		$data .= ", contact_phone2 = '$contact_phone2' ";
 		if(empty($license_key)){
 			$save = $this->db->query("INSERT INTO license set ".$data);
 		}else{
-			$save = $this->db->query("INSERT INTO license_history set ".$data);
 			$save = $this->db->query("UPDATE license set ".$data." where license_key = ".$license_key);
+			// $save = $this->db->query("INSERT INTO license_history set ".$data);
 		}
 		if($save){
 			return 1;

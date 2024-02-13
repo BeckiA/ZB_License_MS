@@ -45,7 +45,7 @@ header("location:index.php?page=home");
 		align-items: center;
 	}
 	#login-right .card{
-		margin: autol
+		margin: auto
 	}
 	.logo h1 {
    text-align: center;

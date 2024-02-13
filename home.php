@@ -48,17 +48,44 @@ a.custom-menu-list span.icon{
 <div class="containe-fluid">
 	<?php include('db_connect.php') ;
 	// $files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
-
+    // $userID = $_SESSION['login_type'];
 	?>
 	<div class="py-5">
 	<div class="row">
 		<div class="col-lg-12">
 			<div class="card col-md-4 offset-2 bg-custom float-left p-2">
 				<div class="card-body text-white">
-					<h4><b>Users</b></h4>
+					<h4><b
+                    ><?php $userID = $_SESSION['login_type']; 
+                    echo $userID == 1 ?  "Users" :  "License History";
+                     ?></b></h4>
 					<hr>
-					<span class="card-icon"><i class="fa fa-users"></i></span>
-					<h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM users')->num_rows ?></b></h3>
+					<span class="card-icon"><i class="<?php 
+    $userID = $_SESSION['login_type']; 
+    echo $userID == 1 ? "fa fa-users" : "fa fa-history";
+?>"></i></span>
+
+					<h3 class="text-right"><b>
+                        <?php 
+                    $userID = $_SESSION['login_type'];
+
+                        if($userID == 1){
+                            echo $conn->query("SELECT * FROM users")->num_rows;
+                        }else {
+                            $adminUserID = 1;
+
+					// Check if the user is an admin
+					$isUserAdmin = ($userID == $adminUserID);
+
+					// Define the WHERE clause based on the user's role
+					$whereClause = $isUserAdmin ? "" : "AND users.type = $userID";
+                     echo $conn->query("SELECT license_history.*, users.username 
+                     FROM license_history
+                     LEFT JOIN users ON license_history.user_id = users.type
+                     WHERE ((expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00') $whereClause)
+                      ")->num_rows;
+                     }
+                     ?></b></h3>
 				</div>
 			</div>
 			<div class="card col-md-4 offset-2 bg-custom ml-4 float-left p-2">
@@ -66,7 +93,19 @@ a.custom-menu-list span.icon{
 					<h4><b>Saved Licenses</b></h4>
 					<hr>
 					<span class="card-icon"><i class="fa fa-file"></i></span>
-					<h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM license')->num_rows ?></b></h3>
+					<h3 class="text-right"><b><?php
+                    $userID = $_SESSION['login_type'];
+                    $adminUserID = 1;
+                    // Check if the user is an admin
+                    $isUserAdmin = ($userID == $adminUserID);
+
+                        // Define the WHERE clause based on the user's role
+                        $whereClause = $isUserAdmin ? "" : "AND users.type = $userID";
+                     echo $conn->query("SELECT license.*, users.username 
+                     FROM license
+                     LEFT JOIN users ON license.user_id = users.type
+                     WHERE ((expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00') $whereClause)
+                      ")->num_rows ?></b></h3>
 				</div>
 			</div>
 		</div>
@@ -82,7 +121,7 @@ a.custom-menu-list span.icon{
 			<div class="col-sm-1">
             	<form id="filterForm"  class="form-inline">
                 <div class="form-group">
-                    <input type="text" class="form-control mr-2" id="expirationYear" placeholder="Enter year">
+                    <input type="text" class="form-control mr-2" id="expirationYear" placeholder="Enter Search Query">
 					<button type="submit" class="btn btn-primary">Filter</button>
                 </div>
                
@@ -107,7 +146,21 @@ a.custom-menu-list span.icon{
 						<?php
 						
                         include 'db_connect.php';
-                        $licenses = $conn->query("SELECT * FROM license WHERE (expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00') ORDER BY expiration_date ASC");
+                        
+                        $adminUserID = 1;
+
+                        // Check if the user is an admin
+                        $isUserAdmin = ($userID == $adminUserID);
+
+                        // Define the WHERE clause based on the user's role
+                        $whereClause = $isUserAdmin ? "" : "AND users.type = $userID";
+
+                        $licenses = $conn->query("SELECT license.*, users.username 
+                        FROM license
+                        LEFT JOIN users ON license.user_id = users.type
+                        WHERE (expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00')
+                        $whereClause
+                        ORDER BY expiration_date ASC");
                         $i = 1;
                         while ($row = $licenses->fetch_assoc()) :
                             // Calculate days left
@@ -187,7 +240,7 @@ $(document).ready(function() {
         var enteredYear = $('#expirationYear').val();
 
         $.ajax({
-            url: 'filter_by_year.php',
+            url: 'filter_from_home.php',
             method: 'POST',
             data: { year: enteredYear},
             success: function(response) {

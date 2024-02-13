@@ -68,10 +68,13 @@ a.custom-menu-list span.icon{
 			<div class="col-lg-12">
 			<div class="col-md-4 input-group offset-4">
 				
-  				<input type="text" class="form-control" id="search" aria-label="Small" aria-describedby="inputGroup-sizing-sm" placeholder="Enter year">
-  				<div class="input-group-append">
-   					 <span class="input-group-text" id="expirationYear" type="submit"><i class="fa fa-search"></i></span>
-  				</div>
+			<form id="filterForm"  class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control mr-2" id="enteredQuery" placeholder="Enter Search Query">
+					<button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+               
+           	 </form>
 			</div>
 			</div>
 		</div>
@@ -94,39 +97,43 @@ a.custom-menu-list span.icon{
 						</tr>
 						<tbody id="tableBody">
 						<?php
- 				include 'db_connect.php';
+ 					include 'db_connect.php';
 
-				// Select and fetch the deleted records
-				$deletedLicensesResult = $conn->query("SELECT * FROM license WHERE expiration_date < NOW() AND expiration_date IS NOT NULL AND expiration_date != '0000-00-00'");
+					$userID = $_SESSION['login_type'];
 				 
-				if ($deletedLicensesResult) {
-					// Loop through the deleted records and insert into history table
-					while ($row = $deletedLicensesResult->fetch_assoc()) {
-						// Assuming your history table is named 'license_history'
-						$insertQuery = "INSERT INTO `license_history` (`license_type`, `license_description`, 
-							`license_info`, `client_info`, `license_cost`, 
-							`purchased_date`, `expiration_date`, `contact_person`, 
-							`contact_person2`, `contact_phone`, `contact_phone2`, 
-							`contact_email`, `contact_email2`)
-							VALUES ('{$row['license_type']}','{$row['license_description']}',
-							'{$row['license_info']}','{$row['client_info']}','{$row['license_cost']}',
-							'{$row['purchased_date']}','{$row['expiration_date']}','{$row['contact_person']}',
-							'{$row['contact_person2']}','{$row['contact_phone']}','{$row['contact_phone2']}',
-							'{$row['contact_email']}','{$row['contact_email2']}')";
-				
-						$insertResult = $conn->query($insertQuery);
-				
-						if (!$insertResult) {
-							echo "Error inserting data into history table: " . $conn->error;
-							break;  // Exit the loop if insertion fails
-						}
-					}
-				
-					// echo "Deleted records have been inserted into the history table.";
-				} else {
-					echo "Error fetching deleted records: " . $conn->error;
-				}
-				   
+				 // Select and fetch the deleted records
+				 $deletedLicensesResult = $conn->query("SELECT * FROM license WHERE expiration_date < NOW() AND expiration_date IS NOT NULL AND expiration_date != '0000-00-00'");
+				 
+				 if ($deletedLicensesResult) {
+					 // Loop through the deleted records and insert into history table
+					 while ($row = $deletedLicensesResult->fetch_assoc()) {
+						 // Assuming your history table is named 'license_history'
+						 $insertQuery = "INSERT INTO `license_history` ( `license_type`, `license_description`, 
+							 `license_info`, `client_info`, `license_cost`, 
+							 `purchased_date`, `expiration_date`, `contact_person`, 
+							 `contact_person2`, `contact_phone`, `contact_phone2`, 
+							 `contact_email`, `contact_email2`, `user_id`)
+							 VALUES ('{$row['license_type']}','{$row['license_description']}',
+							 '{$row['license_info']}','{$row['client_info']}','{$row['license_cost']}',
+							 '{$row['purchased_date']}','{$row['expiration_date']}','{$row['contact_person']}',
+							 '{$row['contact_person2']}','{$row['contact_phone']}','{$row['contact_phone2']}',
+							 '{$row['contact_email']}','{$row['contact_email2']}','{$row['user_id']}')";
+				 
+						 $insertResult = $conn->query($insertQuery);
+				 
+						 if (!$insertResult) {
+							 echo "Error inserting data into history table: " . $conn->error;
+							 break;  // Exit the loop if insertion fails
+						 }
+					 }
+				 
+					//  echo "Deleted records have been inserted into the history table.";
+				 } else {
+
+					 echo "Error fetching deleted records: " . $conn->error;
+				 }	
+				 
+				 
 				 // Delete expired licenses from the database
 				 $deleteExpiredLicenses = $conn->query("DELETE FROM license WHERE (expiration_date < NOW() AND expiration_date IS NOT NULL AND expiration_date != '0000-00-00')");
 				 
@@ -134,19 +141,33 @@ a.custom-menu-list span.icon{
 				 if ($deleteExpiredLicenses) {
 					//  echo "Expired licenses have been removed from the database.";
 				 } else {
-					 echo "Error removing expired licenses: " . $conn->error;
+					//  echo "Error removing expired licenses: " . $conn->error;
 				 }
-				 
 				 					 
 
- 					$licenses = $conn->query("SELECT * FROM license WHERE (expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00') ORDER BY expiration_date ASC");
+				 $adminUserID = 1;
+
+				 // Check if the user is an admin
+				 $isUserAdmin = ($userID == $adminUserID);
+				 
+				 // Define the WHERE clause based on the user's role
+				 $whereClause = $isUserAdmin ? "" : "AND users.type = $userID";
+				 
+				 $licenses = $conn->query("SELECT license.*, users.username 
+										 FROM license
+										 LEFT JOIN users ON license.user_id = users.type
+										 WHERE (expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00')
+										 $whereClause
+										 ORDER BY expiration_date ASC");
+
  					$i = 1;
  					while($row= $licenses->fetch_assoc()):
 						$displayLifetime = $row['expiration_date'] == '0000-00-00' ? 'Lifetime License' : $row['expiration_date'];
 				 ?>
 				 <tr>
+					
 				 	<td>
-				 		<?php echo $i++ ?>
+				 		<?php echo $i++?>
 				 	</td>
 				 	<td>
 				 		<?php echo $row['license_type'] ?>
@@ -253,14 +274,14 @@ $.ajax({
 
 
 	$(document).ready(function() {
-    $('#search').submit(function(e) {
+    $('#filterForm').submit(function(e) {
         e.preventDefault();
-        var enteredYear = $('#expirationYear').val();
+        var enteredQuery = $('#enteredQuery').val();
 
         $.ajax({
-            url: 'filter_by_year.php',
+            url: 'filter_license.php',
             method: 'POST',
-            data: { year: enteredYear},
+            data: { query: enteredQuery},
             success: function(response) {
                 $('#tableBody').empty(); // Clear existing table content
                 $('#tableBody').append(response); // Append filtered data to the table body// Display filtered data in 'filteredData' div

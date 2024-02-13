@@ -11,9 +11,9 @@
 				<?php if($_SESSION['login_type'] == 1): ?>
 				<a href="index.php?page=users" class="nav-item nav-users"><span class='icon-field'><i class="fa fa-users"></i></span> Users</a>
 			<?php endif; ?>
-				<?php if($_SESSION['login_type'] == 1): ?>
+				
 				<a href="index.php?page=history" class="nav-item nav-users"><span class='icon-field'><i class="fa fa-history"></i></span> License History</a>
-			<?php endif; ?>
+			
 		</div>
 
 </nav>

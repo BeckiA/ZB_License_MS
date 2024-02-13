@@ -24,10 +24,15 @@ foreach($user->fetch_array() as $k =>$v){
 			<input type="password" name="password" id="password" class="form-control" value="<?php echo isset($meta['password']) ? $meta['id']: '' ?>" required>
 		</div>
 		<div class="form-group">
-			<label for="type">User Type</label>
+			<label for="type">User Role</label>
 			<select name="type" id="type" class="custom-select">
-				<option value="1" <?php echo isset($meta['type']) && $meta['type'] == 1 ? 'selected': '' ?>>Admin</option>
-				<option value="2" <?php echo isset($meta['type']) && $meta['type'] == 2 ? 'selected': '' ?>>User</option>
+				<option value="1" <?php echo isset($meta['type']) && $meta['type'] == 1 ? 'selected': '' ?>>System Admin</option>
+				<option value="2" <?php echo isset($meta['type']) && $meta['type'] == 2 ? 'selected': '' ?>>Database</option>
+				<option value="3" <?php echo isset($meta['type']) && $meta['type'] == 3 ? 'selected': '' ?>>Software & CBS</option> 
+				<option value="4" <?php echo isset($meta['type']) && $meta['type'] == 4 ? 'selected': '' ?>>Digital</option> 
+				<option value="5" <?php echo isset($meta['type']) && $meta['type'] == 5 ? 'selected': '' ?>>Cyber</option> 
+				<option value="6" <?php echo isset($meta['type']) && $meta['type'] == 6 ? 'selected': '' ?>>Infrastructure</option> 
+				<option value="7" <?php echo isset($meta['type']) && $meta['type'] == 7 ? 'selected': '' ?>>IT Support</option> 
 			</select>
 		</div>
 	</form>

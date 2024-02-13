@@ -1,6 +1,8 @@
 <?php 
 include('db_connect.php');
-if(isset($_GET['license_key'])){
+session_start();
+if(isset($_GET['license_key']) && isset($_SESSION['login_type'])){
+	$user_id = $_SESSION['login_type'];
 $license = $conn->query("SELECT * FROM license where license_key =".$_GET['license_key']);
 foreach($license->fetch_array() as $k =>$v){
 	$meta[$k] = $v;
@@ -11,6 +13,7 @@ foreach($license->fetch_array() as $k =>$v){
 	
 	<form action="" id="manage-license">
 		<input type="hidden" name="license_key" value="<?php echo isset($meta['license_key']) ? $meta['license_key']: '' ?>">
+		<input type="hidden" name="user_id" value="<?php echo isset($_SESSION['login_type']) ? $_SESSION['login_type']: '' ?>">
 		<div class="form-group">
 			<label for="license_type">License Type</label>
 			<input type="text" name="license_type" id="license_type" class="form-control" value="<?php echo isset($meta['license_type']) ? $meta['license_type']: '' ?>" required>
@@ -38,7 +41,7 @@ foreach($license->fetch_array() as $k =>$v){
 		<div class="form-group">
 		<label for="license_lifetime">License Lifetime</label>
 		<select id="licenseType" class="form-control">
-        <option value="">Choose Lifetime</option>
+        <option>Choose Lifetime</option>
         <option value="annual" >Annual</option>
         <option value="lifetime">Lifetime</option>
     </select>

@@ -30,10 +30,10 @@
 			<div class="card col-md-12">
 				<div class="card-body">
 				<ul class="pagination" id="pagination"></ul>
-					<table width="100%" class="table">
+					<table width="50%" class="table">
 						<tr>
-							<th width = '5%'>#</th>
-							<th width = '15%'>License Type</th>
+							<th width ='5%'>#</th>
+							<th width ='15%'>License Type</th>
 							<th width="15%" class="">License Name</th>
 							<th width="15%" class="">Vendor</th>
 							<th width="15%" class="">Expiration Date</th> 
@@ -43,8 +43,24 @@
 						<tbody id="tableBody">
                         <?php
  					include 'db_connect.php';
+					
+					$userID = $_SESSION['login_type'];
 
-                     $licenses = $conn->query("SELECT * FROM license_history ORDER BY expiration_date ASC");
+
+					$adminUserID = 1;
+
+					// Check if the user is an admin
+					$isUserAdmin = ($userID == $adminUserID);
+
+					// Define the WHERE clause based on the user's role
+					$whereClause = $isUserAdmin ? "" : "AND users.type = $userID";
+
+					$licenses = $conn->query("SELECT license_history.*, users.username 
+											FROM license_history
+											LEFT JOIN users ON license_history.user_id = users.type
+											WHERE (expiration_date >= NOW() OR expiration_date IS NULL OR expiration_date = '0000-00-00')
+											$whereClause
+											ORDER BY expiration_date ASC");
  					$i = 1;
  					while($row= $licenses->fetch_assoc()):
 						$displayLifetime = $row['expiration_date'] == '0000-00-00' ? 'Lifetime License' : $row['expiration_date'];

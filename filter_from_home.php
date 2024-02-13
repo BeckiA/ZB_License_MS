@@ -5,7 +5,7 @@ if (isset($_POST['year'])) {
     $enteredYear = $_POST['year'];
     $filteredResult = '';
 
-    $licenses = $conn->query("SELECT * FROM license WHERE YEAR(expiration_date) = '$enteredYear'");
+    $licenses = $conn->query("SELECT * FROM license WHERE YEAR(expiration_date) = '$enteredYear' OR license_info LIKE '%$enteredYear%'");
 
     if ($licenses->num_rows > 0) {
     // Start HTML table
