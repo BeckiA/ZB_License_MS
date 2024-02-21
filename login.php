@@ -11,9 +11,37 @@
 <?php include('./header.php'); ?>
 <?php 
 session_start();
-if(isset($_SESSION['login_id']))
-header("location:index.php?page=home");
+
+if (isset($_SESSION['login_type'])) {
+    $user_id = $_SESSION['login_type'];
+    include 'db_connect.php';
+
+    $user_query = $conn->query("SELECT * FROM users WHERE users.type = $user_id");
+
+    if ($user_query) {
+        $user = $user_query->fetch_assoc();
+
+        if ($user_id != 1) {
+			if ($user && $user['first_login'] == 1) {
+				header("location:new_login.php");
+				// Update the first_login flag to 0
+				$conn->query("UPDATE users SET first_login = 0 WHERE users.type = $user_id");
+				exit(); // Add exit to stop script execution after the header redirect
+			} else {
+				header("location: index.php");
+				exit(); // Add exit to stop script execution after the header redirect
+				echo($user);
+			}
+		}else{
+			header("location: index.php?home");
+		}
+    } else {
+        // Handle database query error
+        echo "Error: " . $conn->error;
+    }
+}
 ?>
+
 
 </head>
 <style>
@@ -135,7 +163,23 @@ header("location:index.php?page=home");
 			},
 			success:function(resp){
 				if(resp == 1){
-					location.reload('index.php?page=home');
+					$.ajax({
+                        url: 'ajax.php?action=check_first_login',
+                        method: 'GET',
+						data:$(this).serialize(),
+                        success: function(firstLogin) {
+                            if (firstLogin) {
+								// Redirect to the home page or perform other actions
+								location.reload('test2.php');
+						
+                            }else {
+								// Redirect to the home page or perform other actions
+								location.reload('test1.php');
+							}
+
+                            
+                        }
+                    });
 				}else{
 					$('#login-form').prepend('<div class="alert alert-danger">Username or password is incorrect.</div>')
 					$('#login-form button[type="button"]').removeAttr('disabled').html('Login');

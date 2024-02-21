@@ -78,7 +78,10 @@ foreach($license->fetch_array() as $k =>$v){
 		</div>
 	</form>
 </div>
+
 <script>
+	// Fetching all necessary datas from the input fields for validation
+	
 	 $(document).ready(function() {
         $('#licenseType').change(function() {
             var selectedType = $(this).val();
@@ -91,6 +94,7 @@ foreach($license->fetch_array() as $k =>$v){
             }
         });
     });
+	// function saveLicense(){
 	$('#manage-license').submit(function(e){
 		e.preventDefault();
 		start_load()
@@ -108,7 +112,7 @@ foreach($license->fetch_array() as $k =>$v){
 			}
 		})
 	})
-
+// }
 	$(document).ready(function() {
     $('#filterForm').submit(function(e) {
         e.preventDefault();

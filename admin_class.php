@@ -12,7 +12,7 @@ Class Action {
 	function __destruct() {
 	    $this->db->close();
 	    ob_end_flush();
-	}
+	}																																														
 
 	function login(){
 		extract($_POST);
@@ -25,6 +25,21 @@ Class Action {
 			return 1;
 		}else{
 			return 2;
+		}
+	}
+	function check_first_login(){
+		// Assuming you have retrieved user data from the database
+		$user_id = $_SESSION['login_type'];
+
+		$firstLogin = $_SESSION['first_login'];
+		// Check if it's the first login
+		$user = $this->db->query("SELECT * FROM users WHERE users.type = $user_id")->fetch_assoc();
+		if ($firstLogin == 1) {
+			// Return a response indicating it's the first login
+			return 1;
+		} else {
+			// Return a response indicating it's not the first login
+       		 return 0;
 		}
 	}
 	function logout(){
@@ -51,6 +66,27 @@ Class Action {
 			return 1;
 		}
 	}
+
+	function update_password(){
+	
+
+	$user_id = $_SESSION['login_type'];
+	
+	extract($_POST);
+
+	$password = $_POST['password'];
+
+    $data = "password = '$password'";
+    $save = $this->db->query("UPDATE users SET $data WHERE users.type = $user_id ");
+
+	if($save){
+		return 1;
+	} else {
+			return 0; // Return the MySQL error if the query fails
+		}
+
+		}
+   
 	function delete_user($id){
 		extract($_POST);
 		include 'db_connect.php';

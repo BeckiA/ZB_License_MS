@@ -36,7 +36,7 @@ foreach($user->fetch_array() as $k =>$v){
 			</select>
 		</div>
 	</form>
-</div>
+</div> 
 <script>
 	$('#manage-user').submit(function(e){
 		e.preventDefault();

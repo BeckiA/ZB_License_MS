@@ -5,10 +5,20 @@ $action = $_GET['action'];
 include 'admin_class.php';
 $crud = new Action();
 
+
+if($action == 'update_password'){
+	
+	$save = $crud->update_password();
+	if($save)
+		echo $save;
+}
+
 if($action == 'login'){
 	$login = $crud->login();
-	if($login)
+	// Inside your login logic (e.g., ajax.php?action=login)
+	if ($login) {
 		echo $login;
+	} 
 }
 if($action == 'logout'){
 	$logout = $crud->logout();
@@ -16,11 +26,19 @@ if($action == 'logout'){
 		echo $logout;
 }
 
+if ($action == 'check_first_login'){
+	$check_first_login = $crud->check_first_login();
+    if($check_first_login)
+        echo $check_first_login;
+}
+
 if($action == 'save_user'){
 	$save = $crud->save_user();
 	if($save)
 		echo $save;
 }
+
+
 if($action == 'delete_user'){
 	$user_id = $_GET['user_id'];
 	$delete = $crud->delete_user($user_id);
