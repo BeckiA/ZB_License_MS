@@ -55,7 +55,9 @@ Class Action {
 		extract($_POST);
 		$data = " name = '$name' ";
 		$data .= ", username = '$username' ";
-		$data .= ", password = '$password' ";
+		// Hash the password
+		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+		$data .= ", password = '$hashed_password' "; // Save hashed password
 		$data .= ", type = '$type' ";
 		if(empty($id)){
 			$save = $this->db->query("INSERT INTO users set ".$data);
@@ -76,7 +78,9 @@ Class Action {
 
 	$password = $_POST['password'];
 
-    $data = "password = '$password'";
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    $data = "password = '$hashed_password' "; // Save hashed password
     $save = $this->db->query("UPDATE users SET $data WHERE users.type = $user_id ");
 
 	if($save){
@@ -139,6 +143,56 @@ Class Action {
 	
 	function save_license(){
 		extract($_POST);
+
+		$errors = array();
+
+		// Perform validation for each field
+		// Check for required fields
+		$requiredFields = array('license_type', 'license_info',
+		'client_info', 'license_cost',	 'purchased_date', 'contact_person',
+		'contact_person2','contact_email', 'contact_email2',
+		 'contact_phone', 'contact_phone2');
+		
+		foreach ($requiredFields as $field) {
+			if (empty($$field)) {
+				$errors[$field] = ucfirst(str_replace('_', ' ', $field)) . ' is required.';
+			}
+		}
+
+		// Validate email format
+		if (!filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+			$errors['contact_email'] = 'Invalid email address.';
+		}
+
+		if (!filter_var($contact_email2, FILTER_VALIDATE_EMAIL)) {
+			$errors['contact_email2'] = 'Invalid email address.';
+		}
+
+		// Validate phone number format
+		if (!preg_match("/^\+?(2519|2517|09|07|011)[0-9]{8}$/", $contact_phone)) {
+			$errors['contact_phone'] = 'Invalid phone number format.';
+		}
+
+		if (!preg_match("/^\+?(2519|2517|09|07|011)[0-9]{8}$/", $contact_phone2)) {
+			$errors['contact_phone2'] = 'Invalid phone number format.';
+		}
+
+		// Validate numeric values
+		if (!is_numeric($license_cost) || $license_cost < 1) {
+			$errors['license_cost'] = 'License cost must be a positive number.';
+		}
+
+		// Check for expiration date format and validate it if provided
+		if (!empty($expiration_date) && !strtotime($expiration_date)) {
+			$errors['expiration_date'] = 'Invalid expiration date format.';
+		}
+
+		// If there are validation errors, return them
+		if (!empty($errors)) {
+			return $errors;
+		}
+
+		// Save Data From The 
 		$data = " license_type = '$license_type' ";
 		$data .= ", license_info = '$license_info' ";
 		$data .= ", user_id = '$user_id'";
@@ -161,6 +215,8 @@ Class Action {
 		}
 		if($save){
 			return 1;
+		}else {
+			return 0; // Database error message
 		}
 	}
 }

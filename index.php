@@ -21,6 +21,10 @@
 	body{
         background: #80808045;
   }
+  .error-message {
+    color: red;
+    font-size: 0.8em;
+}
 </style>
 
 <body>

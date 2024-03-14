@@ -69,23 +69,28 @@
     // Trigger the modal when the page loads
     $('#loginModal').modal('show');
   });
-  $(document).ready(function () {
-    toastr.options = {
-        closeButton: true,
-        progressBar: true,
-        positionClass: 'toast-top-right',
-        timeOut: '2000'
-    };
-});
+
 
   function checkPasswords() {
+
+            $('#pass-form button[type="button"]').attr('disabled', true);
+
             var newPassword = document.getElementById('new_password').value;
             var confirmPassword = document.getElementById('confirm_password').value;
             if(newPassword == '' && confirmPassword == ''){
-              $('#pass-form').prepend('<div class="alert alert-danger">Passwords can not be empty. Please try again.</div>')
+              // $('#pass-form').prepend('<div class="alert alert-danger">Passwords can not be empty. Please try again.</div>')
+              alert_toast("Passwords can not be empty. Please try again.",'danger')
+
             }
             if (newPassword === confirmPassword) {
                
+                if (!isValidPassword(newPassword)) {
+                    // $('#pass-form').prepend('<div class="alert alert-danger">Password must contain at least one lowercase letter, one uppercase letter, one special character, one number, and be at least 8 characters long.</div>')
+                    alert_toast("Password must contain at least one lowercase letter, one uppercase letter, one special character, one number, and be at least 8 characters long.", 'danger');
+                    return; // Stop further execution if password is not valid
+                }
+
+                
                 $.ajax({
                     url: 'ajax.php?action=update_password', 
                     method: 'POST',
@@ -97,9 +102,12 @@
                       if (resp == 1) {
                             console.log(resp)
                             alert_toast("Passwords Upated Successfully!",'success')
+                            // $('#pass-form').prepend('<div class="alert alert-success">Passwords Upated Successfully!</div>')
                             setTimeout(function () {
                                 location.href = 'index.php?home';
                             }, 500)
+                             // Enable the login button after the password is successfully updated
+                             $('#pass-form button[type="button"]').removeAttr('disabled');
                         }
                         else{
                           console.log(resp);
@@ -115,9 +123,17 @@
             
         } else {
                 // Passwords do not match, show an error message
-                $('#pass-form').prepend('<div class="alert alert-danger">Passwords do not match. Please try again.</div>')
+                // $('#pass-form').prepend('<div class="alert alert-danger">Passwords do not match. Please try again.</div>')
+                alert_toast("Passwords do not match. Please try again.",'danger')
             }
     }
+
+      // Function to validate password
+      function isValidPassword(password) {
+          // Password must contain at least one lowercase letter, one uppercase letter, one special character, one number, and be at least 8 characters long
+          var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+          return passwordRegex.test(password);
+      }
 
     window.alert_toast= function($msg = 'TEST',$bg = 'success'){
       $('#alert_toast').removeClass('bg-success')
